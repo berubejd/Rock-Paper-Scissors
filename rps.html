@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <title>Rock, Paper, Scissors</title>
+        <meta name="description" content="A Simple Rock, Paper, Scissors game in JS">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <!-- Include FontAwesome for button graphics (Version 4 because I like those hands for this more.) -->
+        <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+        <!-- Include Bootstrap -->
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
+        <!-- OSB content starts here -->
+        <script>
+            // Create an array of objects to hold the possible computer choices
+            var choices = [
+                {
+                    "name":"Rock",
+                    "icon":"fa-hand-rock-o",
+                    "beats":"Scissors"
+                },
+                {
+                    "name":"Paper",
+                    "icon":"fa-hand-paper-o",
+                    "beats":"Rock"
+                },
+                {
+                    "name":"Scissors",
+                    "icon":"fa-hand-scissors-o",
+                    "beats":"Paper"
+                },
+            ];
+
+            // Initialize variables
+            var player_score = 0;
+            var player_choice = "";
+            var computer_score = 0;
+            var computer_choice = "";
+            var result = "";
+            var table_area_content = "";
+
+            // Update function to contain all the screen updates
+            function update_screen() {
+                // Update scores
+                document.getElementById("player-score").innerHTML = player_score;
+                document.getElementById("computer-score").innerHTML = computer_score;
+
+                // Update "table-area"
+                if (result == 'Tie!') {
+                    table_area_content = '<h2 class="mt-3">Tie!</h2>';
+                } else {
+                    // Find the player's choice from the array of options
+                    for (var i = 0; i < choices.length; i++) {
+                        if (choices[i].name == player_choice) {
+                            var player = choices[i];
+                            break;
+                        }
+                    }
+
+                    // This is the "better" way of finding the right object above according to Google (or .find())
+                    // var player = choices.filter(obj => { return obj.name == player_choice })[0];
+
+                    table_area_content = (
+                        '<!-- Player Icon -->' +
+                        '<i class="fa ' + player.icon + ' fa-4x fa-fw ' + // Select player icon
+                        ((result == 'Player wins!') ? 'text-success' : 'text-danger') + // Color text depending on result
+                        '" aria-hidden="true"></i>' +
+                        '<!-- VS -->' +
+                        '<span class="display-4 font-weight-bold mx-5">VS</span>' +
+                        '<!-- Computer Icon -->' +
+                        '<i class="fa ' + computer_choice.icon + ' fa-4x fa-fw ' + // Select computer icon
+                        ((result == 'Computer wins!') ? 'text-success' : 'text-danger') + // Color text depending on result
+                        '" aria-hidden="true"></i>'
+                    );
+                }
+                document.getElementById("table-area").innerHTML = table_area_content;
+
+                // Update "footer" with play history
+                document.getElementById("footer").innerHTML += (
+                    '<p class="text-muted">The Player chose "' + player_choice  + 
+                    '" and the Computer chose "' + computer_choice.name + 
+                    '".  ' + result +
+                    '</p>'
+                );
+
+                // Remove buttons if someone wins (They won three points.)
+                if (player_score == 3 || computer_score == 3) {
+                    // Create player_won flag like on page 66
+                    var player_won = (player_score > computer_score) ? true : false
+                    document.getElementById("player-input").innerHTML = (
+                        '<div class="card mb-4 ' + 
+                        ((player_won) ? 'border-success' : 'border-danger') + // Change border depending on winner
+                        '"><span class="display-4 mb-2 ' +
+                        ((player_won) ? "text-success" : "text-danger") +  // Change text color depending on winner
+                        '">' + 
+                        ((player_won) ? "Player" : "Computer") + // Change name of winner to reflect results
+                        ' wins!</span></div>'
+                        );
+                }
+            }
+
+            // Process input from player button choice
+            function process_input(choice) {
+                player_choice = choice;
+
+                // Get a random number and assign result from choices array
+                computer_choice = choices[getRandomInt(3)];
+
+                // Exit early if they are the same
+                if (player_choice == computer_choice.name) {
+                    result = "Tie!";
+                } else {
+                    // If the computer's choice beats the player then win else the player wins
+                    if (computer_choice.beats == player_choice) {
+                        result = "Computer wins!";
+                        computer_score += 1;
+                    } else {
+                        result = "Player wins!";
+                        player_score += 1;
+                    }
+                }
+
+                // Update the screen elements
+                update_screen();
+            }
+
+            // Return a random number between 0 and (max - 1)
+            // The random function actually returns a float between 0 and 1 so needs to be multiplied and floor()'d
+            // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Math/random
+            function getRandomInt(max) {
+                return Math.floor(Math.random() * Math.floor(max));
+            }
+        </script>
+    </head>
+    <body class="text-center">
+
+        <div class="my-4">
+            <h1>Rock, Paper, Scissors</h1>
+            <p class="lead">Welcome to a simple game of Rock, Paper, Scissors in JavaScript!</p>
+        </div>
+
+        <div class="container pt-4">
+
+            <div class="row"> <!-- Start Row 1 -->
+                <div class="col-md-3">
+                    <div class="card mb-4">
+                        <div class="card-header"><strong>Player</strong></div>
+                        <span id="player-score" class="display-4">0</span>
+                    </div>
+                </div>
+                <div class="col-md-6 d-flex">
+                    <div class="card mb-4 flex-fill">
+                        <div id="table-area" class="card-body">
+                            <h2 class="mt-3">Make your choice below:</h2>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-3">
+                    <div class="card mb-4">
+                        <div class="card-header"><strong>Computer</strong></div>
+                        <span id="computer-score" class="display-4">0</span>
+                    </div>
+                </div>
+            </div> <!-- End Row 1 -->
+
+            <div class="row justify-content-center"> <!-- Start Row 2 -->
+                <div id="player-input" class="col-md-6">
+                    <div class="row mx-auto mb-4">
+                        <button class="btn btn-outline-dark col" onclick="process_input('Rock')"><i class="fa fa-hand-rock-o fa-2x fa-fw align-middle" aria-hidden="true"></i>Rock</button>
+                        <button class="btn btn-outline-dark col mx-2" onclick="process_input('Paper')"><i class="fa fa-hand-paper-o fa-2x fa-fw align-middle" aria-hidden="true"></i>Paper</button>
+                        <button class="btn btn-outline-dark col" onclick="process_input('Scissors')"><i class="fa fa-hand-scissors-o fa-2x fa-fw align-middle" aria-hidden="true"></i>Scissors</button>
+                    </div>
+                </div>
+            </div> <!-- End Row 2 -->
+
+        </div>
+
+        <div>
+            <p class="text-muted">Jeffrey Berube - Jun 2020</p>
+        </div>
+
+        <hr class="w-75">
+
+        <div id="footer" class="w-75 m-auto"></div>
+    </body>
+</html>

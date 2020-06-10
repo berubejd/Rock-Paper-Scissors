@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <title>Rock, Paper, Scissors</title>
+        <meta name="description" content="A Simple Rock, Paper, Scissors game in JS">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <!-- OSB content starts here -->
+        <script>
+            // Create an array of objects to hold the possible computer choices
+            var choices = [
+                {
+                    "name":"Rock",
+                    "beats":"Scissors"
+                },
+                {
+                    "name":"Paper",
+                    "beats":"Rock"
+                },
+                {
+                    "name":"Scissors",
+                    "beats":"Paper"
+                },
+            ];
+
+            // Initialize variables
+            var player_score = 0;
+            var player_choice = "";
+            var computer_score = 0;
+            var computer_choice = "";
+            var result = "";
+            var table_area_content = "";
+
+            // Update function to contain all the screen updates
+            function update_screen() {
+                // Update scores
+                document.getElementById("player-score").innerHTML = player_score;
+                document.getElementById("computer-score").innerHTML = computer_score;
+
+                // Update "table-area"
+                if (result == 'Tie!') {
+                    table_area_content = '<p>Tie!</p>';
+                } else {
+                    // Find the player's choice from the array of options
+                    for (var i = 0; i < choices.length; i++) {
+                        if (choices[i].name == player_choice) {
+                            var player = choices[i];
+                            break;
+                        }
+                    }
+
+                    // This is the "better" way of finding the right object above according to Google (or .find())
+                    // var player = choices.filter(obj => { return obj.name == player_choice })[0];
+
+                    table_area_content = '<p>' + player.name + ' vs. ' + computer_choice.name + ' - ' + result + '</p>';
+                }
+                document.getElementById("table-area").innerHTML = table_area_content;
+
+                // Update "footer" with play history
+                document.getElementById("footer").innerHTML += (
+                    '<p>The Player chose "' + player_choice  + 
+                    '" and the Computer chose "' + computer_choice.name + 
+                    '".  ' + result +
+                    '</p>'
+                );
+
+                // Remove buttons if someone wins (They won three points.)
+                if (player_score == 3 || computer_score == 3) {
+                    // Create player_won flag like on page 66
+                    var player_won = (player_score > computer_score) ? true : false
+                    document.getElementById("player-input").innerHTML = '<span>' + ((player_won) ? "Player" : "Computer") + ' wins!</span>'; // Change name of winner to reflect results
+                    document.getElementById("table-area").innerHTML = '';
+                }
+            }
+
+            // Process input from player button choice
+            function process_input(choice) {
+                player_choice = choice;
+
+                // Get a random number and assign result from choices array
+                computer_choice = choices[getRandomInt(3)];
+
+                // Exit early if they are the same
+                if (player_choice == computer_choice.name) {
+                    result = "Tie!";
+                } else {
+                    // If the computer's choice beats the player then win else the player wins
+                    if (computer_choice.beats == player_choice) {
+                        result = "Computer wins!";
+                        computer_score += 1;
+                    } else {
+                        result = "Player wins!";
+                        player_score += 1;
+                    }
+                }
+
+                // Update the screen elements
+                update_screen();
+            }
+
+            // Return a random number between 0 and (max - 1)
+            // The random function actually returns a float between 0 and 1 so needs to be multiplied and floor()'d
+            // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Math/random
+            function getRandomInt(max) {
+                return Math.floor(Math.random() * Math.floor(max));
+            }
+        </script>
+    </head>
+    <body>
+
+        <div>
+            <h1>Rock, Paper, Scissors</h1>
+            <p>Welcome to a simple game of Rock, Paper, Scissors in JavaScript!</p>
+        </div>
+
+        <div>
+            <p>Player: <span id="player-score">0</span><br>Computer: <span id="computer-score">0</span></p>
+        </div>
+
+        <div id="table-area">
+            <p>Make your choice below:</p>
+        </div>
+
+        <div id="player-input">
+            <button onclick="process_input('Rock')">Rock</button>
+            <button onclick="process_input('Paper')">Paper</button>
+            <button onclick="process_input('Scissors')">Scissors</button>
+        </div>
+
+        <hr>
+
+        <div id="footer"></div>
+    </body>
+</html>
